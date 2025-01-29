@@ -35,8 +35,9 @@ public class SocialMediaController {
             } else {
                 addAccount(account.getUsername(), account.getPassword());
                 ctx.status(200);
-                account.setAccount_id(0);
+                account.setAccount_id(findID(account.getUsername()));
                 ctx.json(account);
+                // viewDatabase(account.getUsername());
             }
         });
 
@@ -77,13 +78,31 @@ public class SocialMediaController {
         return false;
     }
 
-    // view all values in database
-    private void viewDatabase() {
+    
+    private int findID(String user) {
         try(Connection conn = ConnectionUtil.getConnection()){
-            PreparedStatement ps = conn.prepareStatement("select * from account;");
+            PreparedStatement ps = conn.prepareStatement("select account_id from account where username=?;");
+            ps.setString(1, user);
             ResultSet rs = ps.executeQuery();
             while(rs.next()) {
-                System.out.println(rs.getString("username"));
+                // System.out.println(rs.getString("account_id"));
+                return rs.getInt("account_id");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
+    // view all values in database
+    private void viewDatabase(String user) {
+        try(Connection conn = ConnectionUtil.getConnection()){
+            PreparedStatement ps = conn.prepareStatement("select account_id from account where username=?;");
+            ps.setString(1, user);
+            ResultSet rs = ps.executeQuery();
+            while(rs.next()) {
+                System.out.println(rs.getInt("account_id"));
             }
         } catch (SQLException e) {
             e.printStackTrace();
